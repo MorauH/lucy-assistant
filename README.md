@@ -1,0 +1,2 @@
+# Lucy
+\- a AI assistant
