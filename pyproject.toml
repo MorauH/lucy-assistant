@@ -5,8 +5,11 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    
+    "torch",
+    "torchvision",
+    "torchaudio",
 ]
 
 [tool.uv.sources]
-
+#fairseq = { git = "https://github.com/facebookresearch/fairseq.git" }
+#parler-tts = { git = "https://github.com/huggingface/parler-tts.git" }
