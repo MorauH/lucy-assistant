@@ -45,12 +45,16 @@
             python312Packages.torchaudio-bin
 
             uv
+
+            # MeloTTS
             mecab
             rustc
             cargo
-
             openssl
             openssl.dev
+
+            # Whisper
+            ffmpeg
           ];
 
           postVenvCreation = ''
