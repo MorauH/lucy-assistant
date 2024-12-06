@@ -9,6 +9,12 @@ dependencies = [
     "unidic", # the dictionary for mecab (used in MeloTTS)
     
     "openai-whisper",
+    
+    "openai",
+    "langchain",
+    "langgraph",
+    "langchain-openai",
+    "python-dotenv",
 ]
 
 [tool.uv.sources]
