@@ -55,7 +55,11 @@
 
             # Whisper
             ffmpeg
+
+            # Sound
+            portaudio
           ];
+
 
           postVenvCreation = ''
             uv sync
@@ -65,6 +69,7 @@
           shellHook = ''
             venvShellHook
             uv sync
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.portaudio}/lib
           '';
         };
       });

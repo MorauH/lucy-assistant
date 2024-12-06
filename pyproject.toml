@@ -6,15 +6,17 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "melotts",
-    "unidic", # the dictionary for mecab (used in MeloTTS)
+    "unidic==1.1.0", # the dictionary for mecab (used in MeloTTS)
     
-    "openai-whisper",
+    "openai-whisper==20240930",
     
-    "openai",
-    "langchain",
-    "langgraph",
-    "langchain-openai",
-    "python-dotenv",
+    "openai==1.57.0",
+    "langchain==0.3.10",
+    "langgraph==0.2.56",
+    "langchain-openai==0.2.11",
+
+    "sounddevice==0.5.1",
+    "scipy==1.14.1",
 ]
 
 [tool.uv.sources]
