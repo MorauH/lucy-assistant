@@ -42,13 +42,20 @@
             python312Packages.venvShellHook
             python312Packages.torch-bin
             # python312Packages.torchvision-bin
-            # python312Packages.torchaudio-bin
+            python312Packages.torchaudio-bin
 
             uv
+            mecab
+            rustc
+            cargo
+
+            openssl
+            openssl.dev
           ];
 
           postVenvCreation = ''
             uv sync
+            python -m unidic download
           '';
 
           shellHook = ''

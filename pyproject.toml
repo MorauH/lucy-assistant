@@ -5,8 +5,11 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    
+    "melotts",
+    "unidic", # the dictionary for mecab (used in MeloTTS)
+    #"nltk", " # averaged_perceptron_tagger_eng
 ]
 
 [tool.uv.sources]
-
+#melotts = { git = "https://github.com/myshell-ai/MeloTTS.git", rev = "36175becca0319beec705122673d8d1c4941d498" }
+melotts = { path = "./depend/MeloTTS" }

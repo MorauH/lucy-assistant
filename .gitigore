@@ -1,4 +1,4 @@
-.envrc
+
 .direnv/
 __pycache__/
 .venv/
