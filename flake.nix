@@ -12,37 +12,20 @@
         pkgs = import nixpkgs {
           system = system;
           config.allowUnfree = true;
-          overlays = [
-            (final: prev: {
-              python312 = prev.python312.override {
-                packageOverrides = final: prevPy: {
-
-                  triton-bin = prevPy.triton-bin.overridePythonAttrs (oldAttrs: {
-                    postFixup = ''
-                      chmod +x "$out/${prev.python312.sitePackages}/triton/backends/nvidia/bin/ptxas"
-                      substituteInPlace $out/${prev.python312.sitePackages}/triton/backends/nvidia/driver.py \
-                        --replace \
-                          'return [libdevice_dir, *libcuda_dirs()]' \
-                          'return [libdevice_dir, "${prev.addDriverRunpath.driverLink}/lib", "${prev.cudaPackages.cuda_cudart}/lib/stubs/"]'
-                    '';
-                  });
-                };
-              };
-              python312Packages = final.python312.pkgs;
-            })
-          ];
+          config.cudaSupport = true;
+          config.cudnnSupport = true;
         };
       in
       {
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShell{
           venvDir = ".venv";
 
           buildInputs = with pkgs; [
             python312
             python312Packages.venvShellHook
-            python312Packages.torch-bin
+            python312Packages.torch
             # python312Packages.torchvision-bin
-            python312Packages.torchaudio-bin
+            python312Packages.torchaudio
 
             uv
 
@@ -71,6 +54,8 @@
             uv sync
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.portaudio}/lib
           '';
+
+          # LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
         };
       });
 }
