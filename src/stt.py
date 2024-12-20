@@ -10,6 +10,8 @@ import numpy as np
 import speech_recognition as sr
 import sounddevice
 
+import threading
+
 
 
 def print_mic_names():
@@ -161,13 +163,10 @@ class LiveSST():
         
 
 
-    def start(self):
-        phrase_time = None # Last time retrieved a recording from the queue
-        data_queue = Queue()
-        buffer = bytearray()
-
-        transcription = ['']
-        
+    def start_continous(self):
+        self.phrase_time = None # Last time retrieved a recording from the queue
+        self.data_queue = Queue()
+        self.buffer = bytearray()        
 
         def record_callback(_, audio:sr.AudioData) -> None:
             """
@@ -176,58 +175,51 @@ class LiveSST():
             """
             # Grab the raw bytes and push it into the thread safe queue.
             data = audio.get_raw_data()
-            data_queue.put(data)
+            self.data_queue.put(data)
 
         with self.source as source:
             self.recorder.adjust_for_ambient_noise(source)
         self.recorder.listen_in_background(self.source, record_callback, phrase_time_limit=self.record_split)
         print('Listening...')
-
+    
+    def get_transcription(self):
         while True:
             try:
                 now = datetime.now()
 
-                if phrase_time and now - phrase_time > timedelta(seconds=self.phrase_timeout):
+                if self.phrase_time and now - self.phrase_time > timedelta(seconds=self.phrase_timeout):
                     # Silence detected, end phrase.
-                    phrase_time = None
+                    self.phrase_time = None
                     
-                    text = self.transcribe_bytes(buffer)
-                    buffer.clear()
+                    text = self.transcribe_bytes(self.buffer)
+                    self.buffer.clear()
                     
                     if text != '':
-                        transcription.append(text)
+                        yield text
                     
-                    # Clear the console to reprint the updated transcription.
-                    os.system('cls' if os.name=='nt' else 'clear')
-                    for line in transcription:
-                        print(line)
-                    # Flush stdout.
-                    print('', end='', flush=True)
                     continue
 
-                if data_queue.empty():
+                if self.data_queue.empty():
                     sleep(0.25)
                     continue
 
-                phrase_time = now
+                self.phrase_time = now
 
                 # Combine audio data from queue
-                buffer += b''.join(data_queue.queue)
-                data_queue.queue.clear()
-                print(f'Buffer size: {len(buffer)}')
+                self.buffer += b''.join(self.data_queue.queue)
+                self.data_queue.queue.clear()
+                print(f'Buffer size: {len(self.buffer)}')
             except KeyboardInterrupt:
                 break
-        
-        print("\n\nTranscription:")
-        for line in transcription:
-            print(line)
-        
         
     
 if __name__ == '__main__':
     #print_mic_names()
 
     stt = LiveSST()
-    stt.start()
-    print('Done.')
+    stt.start_continous()
+    
+    for text in stt.get_transcription():
+        print(text)
+        print('---')
     

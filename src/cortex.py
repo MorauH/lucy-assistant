@@ -57,40 +57,47 @@ class Cortex:
         
         return "Tool added successfully. Assistant restarted with new tools."# Available after next user prompt."
     
+    def prompt(self, prompt: str):
+        if prompt.lower() == "exit":
+            return
 
-    def start(self):
+        try:
+            self.start_stream = True # start stream once
+            messages = [HumanMessage(content=prompt)]
+
+            while self.start_stream:
+                self.start_stream = False
+                for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "abc123"}}):
+                    print(chunk)
+                    print("----")
+
+                    # add chunk messages to messages if exist
+                    if "agent" in chunk:
+                        messages.extend(chunk["agent"]["messages"])
+                    elif "tools" in chunk:
+                        messages.extend(chunk["tools"]["messages"])
+                    
+                    if self.start_stream: # restart stream with updated agent
+                        self.agent_executor = create_react_agent(model=self.llm, tools=self.tools, checkpointer=self.memory)
+                        break
+            # return the last message
+            return messages[-1].content
+        except Exception as e:
+            print(f"Error: {e}")
+
+
+    def command_prompt(self):
         while True:
             prompt = input("Prompt: ")
             if prompt.lower() == "exit":
-                del self.game
                 break
-
-            try:
-                self.start_stream = True # start stream once
-                messages = [HumanMessage(content=prompt)]
-
-                while self.start_stream:
-                    self.start_stream = False
-                    for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "abc123"}}):
-                        print(chunk)
-                        print("----")
-
-                        # add chunk messages to messages if exist
-                        if "agent" in chunk:
-                            messages.extend(chunk["agent"]["messages"])
-                        elif "tools" in chunk:
-                            messages.extend(chunk["tools"]["messages"])
-                        
-                        if self.start_stream: # restart stream with updated agent
-                            self.agent_executor = create_react_agent(model=self.llm, tools=self.tools, checkpointer=self.memory)
-                            break
-            except Exception as e:
-                print(f"Error: {e}")
+            
+            self.prompt(prompt)
 
 
 def main():
     cortex_game = Cortex()
-    cortex_game.start()
+    cortex_game.command_prompt()
 
 if __name__ == "__main__":
     main()
