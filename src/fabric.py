@@ -44,18 +44,23 @@ def tts_loop():
         sd.stop()
         interrupt_tts.clear()
 
-def main():
-    sst_thread = threading.Thread(target=sst_loop)
-    tts_thread = threading.Thread(target=tts_loop)
+def main(stt = True):
 
-    sst_thread.start()
+    if stt:
+        sst_thread = threading.Thread(target=sst_loop)
+        sst_thread.start()
+    
+    tts_thread = threading.Thread(target=tts_loop)
     tts_thread.start()
 
     cortex = Cortex()
 
     while True:
-        print("Listening for input...")
-        text = sst_to_agent_queue.get(block=True)
+        if stt:
+            print("Listening for input...")
+            text = sst_to_agent_queue.get(block=True)
+        else:
+            text = input("Prompt: ")
 
         print(f"Received input: {text}")
         response = cortex.prompt(text)
@@ -65,4 +70,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(stt=False)
