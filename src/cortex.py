@@ -12,6 +12,10 @@ from langchain_openai import ChatOpenAI
 
 from langchain.tools import StructuredTool
 
+from cal.agent_calendar import AgentCalendar
+from pydantic import BaseModel
+
+
 agent_instructions = '''
 You are an AI assistant named Lucy, designed to be helpful, friendly, and efficient in assisting users with their queries, providing information, and solving problems.
 
@@ -54,9 +58,25 @@ You are an AI assistant named Lucy, designed to be helpful, friendly, and effici
 '''
 instruction_msg = SystemMessage(content=agent_instructions)
 
+cal_agent = AgentCalendar()
+
+class PromptInput(BaseModel):
+    prompt: str
+subagent_tools = [
+    StructuredTool.from_function(
+        name="prompt_calendar_agent",
+        func=cal_agent.prompt,
+        description="Prompt the calendar agent for assistance. This agent manages the calendar. You can ask about events, create events, and more.",
+        args_schema=PromptInput,
+    ),
+]
+
 class Cortex:
     def __init__(self):
+        # compile tools list
         self.tools = get_tools(execute_string_callable=self.execute_string, create_tool_callable=self.create_tool)
+        self.tools.extend(subagent_tools)
+
         self.memory = MemorySaver()
         self.llm = ChatOpenAI(model='gpt-4o-mini')
         #self.llm = ChatOpenAI(model='openai-assistant')  # Use OpenAI assistant model

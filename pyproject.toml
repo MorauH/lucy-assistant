@@ -19,6 +19,14 @@ dependencies = [
 
     "sounddevice==0.5.1",
     "scipy==1.14.1",
+
+
+
+    # for calendar agent
+    "google-api-python-client==2.160.0",
+    #"google-auth-httplib2",
+    #"google-auth-oauthlib==1.2.1"
+    #"google-auth", 
 ]
 
 [tool.uv.sources]
