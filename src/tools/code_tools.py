@@ -25,6 +25,10 @@ class ToolCreationInput(BaseModel):
 class ExecuteStringInput(BaseModel):
     code: str
 
+class SearchFilesInput(BaseModel):
+    pattern: str = '*'
+    content_match: Optional[str] = None
+
 
 ROOT_DIRECTORY = os.getcwd() + '/root'
 
@@ -53,6 +57,10 @@ def read_file(file_name: str) -> str:
 def delete_file(file_name: str) -> str:
     """Delete file or directory."""
     return workspace.delete_file(file_name)
+
+def search_files(pattern: str = '*', content_match: Optional[str] = None) -> List[str]:
+    """Search for files by pattern and optionally by content. Start path with ** to include files in subdirectories."""
+    return workspace.search_files(pattern, content_match)
 
 # Structured tool creation for each function
 def get_tools(execute_string_callable: Callable, create_tool_callable: Callable) -> List[StructuredTool]:
@@ -93,6 +101,15 @@ def get_tools(execute_string_callable: Callable, create_tool_callable: Callable)
             It has access to the current context and will modify it.
             """,
             args_schema=ExecuteStringInput
+        ),
+        StructuredTool.from_function(
+            func=search_files,
+            name="Search_Files",
+            description="""
+            Search for files by pattern and optionally by content.
+            Pattern is a glob pattern for file paths.
+            """,
+            args_schema=SearchFilesInput
         ),
         StructuredTool.from_function(
             func=create_tool_callable,

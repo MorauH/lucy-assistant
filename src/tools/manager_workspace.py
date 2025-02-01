@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import shutil
+from typing import List
 
 class WorkspaceManager:
     def __init__(self, workspace_root: str):
@@ -47,3 +48,18 @@ class WorkspaceManager:
             full_path.unlink()
         
         return f"{relative_path} deleted successfully."
+    
+    def search_files(self, pattern: str = "*", content_match: str = None) -> List[str]:
+        """Search for files by path pattern and optionally by content"""
+        results = []
+        for file in self.workspace_root.rglob(pattern):
+            if content_match:
+                try:
+                    with open(file, 'r') as f:
+                        if content_match in f.read():
+                            results.append(str(file.relative_to(self.workspace_root)))
+                except Exception as e:
+                    pass
+            else:
+                results.append(str(file.relative_to(self.workspace_root)))
+        return results
