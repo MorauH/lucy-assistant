@@ -30,7 +30,7 @@ class SearchFilesInput(BaseModel):
     content_match: Optional[str] = None
 
 
-ROOT_DIRECTORY = os.getcwd() + '/root'
+ROOT_DIRECTORY = os.getcwd() + '/workspace'
 
 workspace = WorkspaceManager(ROOT_DIRECTORY)
 
@@ -40,7 +40,7 @@ workspace = WorkspaceManager(ROOT_DIRECTORY)
 # Function implementations
 
 def list_directory(path: Optional[str] = None) -> List[str]:
-    """List files and directories in the specified path relative to root directory."""
+    """List files and directories in the specified path relative to workspace directory."""
     # If path is None, use the current working directory
 
     path = path or '.'
@@ -64,7 +64,7 @@ def search_files(pattern: str = '*', content_match: Optional[str] = None) -> Lis
 
 # Structured tool creation for each function
 def get_tools(execute_string_callable: Callable, create_tool_callable: Callable) -> List[StructuredTool]:
-    tools = [
+    return [
         StructuredTool.from_function(
             func=list_directory,
             name="list_directory",
@@ -107,7 +107,7 @@ def get_tools(execute_string_callable: Callable, create_tool_callable: Callable)
             name="Search_Files",
             description="""
             Search for files by pattern and optionally by content.
-            Pattern is a glob pattern for file paths.
+            Pattern is a glob pattern for file paths in the workspace.
             """,
             args_schema=SearchFilesInput
         ),
@@ -126,5 +126,3 @@ def get_tools(execute_string_callable: Callable, create_tool_callable: Callable)
             args_schema=ToolCreationInput
         )
     ]
-    
-    return tools
