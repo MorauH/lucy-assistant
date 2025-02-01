@@ -3,15 +3,17 @@ from pydantic import BaseModel
 from langchain.tools import StructuredTool
 import os
 
+from .manager_workspace import WorkspaceManager
+
 # Define input models
 class ListFilesInput(BaseModel):
     path: Optional[str] = None
 
-class CreateFileInput(BaseModel):
-    file_name: str
+class WriteFileInput(BaseModel):
+    relative_path: str
     content: Optional[str] = ''
 
-class ReadFileInput(BaseModel):
+class FilePathInput(BaseModel):
     file_name: str
 
 class ToolCreationInput(BaseModel):
@@ -24,30 +26,33 @@ class ExecuteStringInput(BaseModel):
     code: str
 
 
+ROOT_DIRECTORY = os.getcwd() + '/root'
+
+workspace = WorkspaceManager(ROOT_DIRECTORY)
+
+
+
 
 # Function implementations
 
 def list_directory(path: Optional[str] = None) -> List[str]:
-    """List files and directories in the specified path or current directory."""
+    """List files and directories in the specified path relative to root directory."""
     # If path is None, use the current working directory
 
-    relative = path if path is not None else "."
-    
-    if path is None:
-        path = os.getcwd()
-    return [f"{relative}\\{x}" for x in os.listdir(path)]
+    path = path or '.'
+    return workspace.list_directory(path)
 
-def create_python_file(file_name: str, content: str = '') -> str:
-    """Create a Python file with specified content."""
-    with open(file_name, 'w') as file:
-        file.write(content)
-    return f'{file_name} created successfully.'
+def write_file(relative_path: str, content: str = '') -> str:
+    """Write a file with specified content."""
+    return workspace.write_file(relative_path, content)
 
 def read_file(file_name: str) -> str:
     """Read and return the content of a file."""
-    with open(file_name, 'r') as file:
-        return file.read()
+    return workspace.read_file(file_name)
 
+def delete_file(file_name: str) -> str:
+    """Delete file or directory."""
+    return workspace.delete_file(file_name)
 
 # Structured tool creation for each function
 def get_tools(execute_string_callable: Callable, create_tool_callable: Callable) -> List[StructuredTool]:
@@ -63,16 +68,22 @@ def get_tools(execute_string_callable: Callable, create_tool_callable: Callable)
             args_schema=ListFilesInput
         ),
         StructuredTool.from_function(
-            func=create_python_file,
-            name="Create_Python_File",
-            description="Create a Python file with specified content.",
-            args_schema=CreateFileInput
+            func=write_file,
+            name="Write_File",
+            description="Create a new file or overwrite existing file. Directory will be created if it does not exist.",
+            args_schema=WriteFileInput
         ),
         StructuredTool.from_function(
             func=read_file,
             name="Read_File",
             description="Read and return the content of a file.",
-            args_schema=ReadFileInput
+            args_schema=FilePathInput
+        ),
+        StructuredTool.from_function(
+            func=delete_file,
+            name="Delete_File",
+            description="Delete file or directory.",
+            args_schema=FilePathInput
         ),
         StructuredTool.from_function(
             func=execute_string_callable,
@@ -91,7 +102,7 @@ def get_tools(execute_string_callable: Callable, create_tool_callable: Callable)
             Name should match the functions name.
             func is python code as a function that defines the tool.
             The code may use references to the current context.
-            func may be empty if a function with name is already defined.
+            func may be empty if a function with exact name is already defined.
             def func(<args>):
                 <code>
                 """,
