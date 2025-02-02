@@ -12,7 +12,7 @@ class CalendarManager:
 
     def get_events(self, start_date: datetime.date, end_date: datetime.date):
 
-        # Expects time in iso format. Ex: "2021-10-10T10:00:00"
+        # Expects time in iso format. Ex: "2021-10-10T10:00:00Z"
 
         events_result = self.calendar_service.events().list(
             calendarId=self.calendar_id,

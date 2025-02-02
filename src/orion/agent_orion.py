@@ -16,8 +16,10 @@ import datetime
 
 today = datetime.date.today()
 
+
+# TODO: Add messaging/email communication
 agent_instructions = f'''
-You are a calendar agent. You can help me manage my calendar.
+You are  an personal assistant. You manage the calendar, events.
 
 # Steps
 
@@ -30,14 +32,15 @@ You are a calendar agent. You can help me manage my calendar.
 # Notes
 - Answers should be concise and informative
 - Only answer with information that is relevant to the request
+- Use 24hr time format
 
 # Context
-Today is {today}
+- Today is {today}
 '''
 
 instruction_msg = SystemMessage(content=agent_instructions)
 
-class AgentCalendar:
+class AgentOrion:
     def __init__(self):
         self.tools = get_tools()
         self.memory = MemorySaver() # TODO: should it have memory?
@@ -59,3 +62,4 @@ class AgentCalendar:
                 
         # return the last message
         return messages[-1].content
+

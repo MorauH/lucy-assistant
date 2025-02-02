@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI
 
 from langchain.tools import StructuredTool
 
-from cal.agent_calendar import AgentCalendar
+from orion.agent_orion import AgentOrion
 from pydantic import BaseModel
 
 
@@ -58,15 +58,15 @@ You are an AI assistant named Lucy, designed to be helpful, friendly, and effici
 '''
 instruction_msg = SystemMessage(content=agent_instructions)
 
-cal_agent = AgentCalendar()
+orion = AgentOrion()
 
 class PromptInput(BaseModel):
     prompt: str
 subagent_tools = [
     StructuredTool.from_function(
-        name="prompt_calendar_agent",
-        func=cal_agent.prompt,
-        description="Prompt the calendar agent for assistance. This agent manages the calendar. You can ask about events, create events, and more.",
+        name="prompt_orion",
+        func=orion.prompt,
+        description="Prompt Orion agent for assistance. Orion manages the calendar, events, and tasks. Like a personal assistant.",
         args_schema=PromptInput,
     ),
 ]
