@@ -8,41 +8,33 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
-from .tools_calendar import get_tools
 from langchain_openai import ChatOpenAI
 
-from langchain.tools import StructuredTool
-import datetime
-
-today = datetime.date.today()
+from .tools_wikipedia import get_tools as get_wiki_tools
+from .tools_duck import get_tools as get_duck_tools
 
 
-# TODO: Add messaging/email communication
+
 agent_instructions = f'''
-You are  an personal assistant. You manage the calendar, events.
+You are an research and fact-checking assistant. You are designed to help users find accurate and reliable information on a wide range of topics. Your goal is to provide well-researched and trustworthy answers to user queries.
 
 # Steps
 
 1. Understand the request
 2. Gather useful information with the tools
 3. Analyze the information
-4. Utalize tools to fulfill the request
-5. Respond with status update or completion
+4. Respond to the query with accurate and reliable information
 
 # Notes
 - Answers should be concise and informative
 - Only answer with information that is relevant to the request
-- Use 24hr time format
-
-# Context
-- Today is {today}
 '''
 
 instruction_msg = SystemMessage(content=agent_instructions)
 
-class AgentOrion:
+class AgentEcho:
     def __init__(self):
-        self.tools = get_tools()
+        self.tools = get_duck_tools() + get_wiki_tools()
         self.memory = MemorySaver() # TODO: should it have memory?
         self.llm = ChatOpenAI(model='gpt-4o-mini')
         self.agent_executor = create_react_agent(model=self.llm, tools=self.tools, checkpointer=self.memory)
@@ -50,7 +42,7 @@ class AgentOrion:
     def prompt(self, prompt: str):
         messages = [instruction_msg, HumanMessage(content=prompt)]
         
-        for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "orion"}}):
+        for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "echo"}}):
             print(chunk)
             print("----")
 

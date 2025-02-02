@@ -10,23 +10,28 @@ dependencies = [
     
     "openai-whisper==20240930",
     "pyaudio==0.2.14",
-    "SpeechRecognition",
+    "SpeechRecognition==3.11.0",
     
     "openai==1.57.0",
     "langchain==0.3.10",
     "langgraph==0.2.56",
     "langchain-openai==0.2.11",
+    "langchain_community==0.3.10",
 
     "sounddevice==0.5.1",
     "scipy==1.14.1",
 
 
 
-    # for calendar agent
+    # for orion agent
     "google-api-python-client==2.160.0",
     #"google-auth-httplib2",
     #"google-auth-oauthlib==1.2.1"
     #"google-auth", 
+
+    # for echo agent
+    "wikipedia==1.4.0",
+    "duckduckgo-search==7.3.0",
 ]
 
 [tool.uv.sources]

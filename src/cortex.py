@@ -13,6 +13,8 @@ from langchain_openai import ChatOpenAI
 from langchain.tools import StructuredTool
 
 from orion.agent_orion import AgentOrion
+from echo.agent_echo import AgentEcho
+
 from pydantic import BaseModel
 
 
@@ -58,6 +60,7 @@ You are an AI assistant named Lucy, designed to be helpful, friendly, and effici
 '''
 instruction_msg = SystemMessage(content=agent_instructions)
 
+echo = AgentEcho()
 orion = AgentOrion()
 
 class PromptInput(BaseModel):
@@ -67,6 +70,12 @@ subagent_tools = [
         name="prompt_orion",
         func=orion.prompt,
         description="Prompt Orion agent for assistance. Orion manages the calendar, events, and tasks. Like a personal assistant.",
+        args_schema=PromptInput,
+    ),
+    StructuredTool.from_function(
+        name="prompt_echo",
+        func=echo.prompt,
+        description="Prompt Echo agent for assistance. Echo can access internet for research and fact-checking.",
         args_schema=PromptInput,
     ),
 ]
@@ -130,7 +139,7 @@ class Cortex:
 
             while self.start_stream:
                 self.start_stream = False
-                for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "abc123"}}):
+                for chunk in self.agent_executor.stream({"messages": messages}, {"configurable": {"thread_id": "cortex"}}):
                     print(chunk)
                     print("----")
 
