@@ -1,4 +1,6 @@
-# Import necessary libraries from LangChain
+
+import datetime
+
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.tools import Tool
@@ -17,8 +19,7 @@ from echo.agent_echo import AgentEcho
 
 from pydantic import BaseModel
 
-
-agent_instructions = '''
+agent_instructions = f'''
 You are an AI assistant named Lucy, designed to be helpful, friendly, and efficient in assisting users with their queries, providing information, and solving problems.
 
 # Steps
@@ -57,6 +58,9 @@ You are an AI assistant named Lucy, designed to be helpful, friendly, and effici
 - Always ensure that the advice provided is up-to-date and accurate.
 - Maintain a user-friendly tone that encourages further engagement.
 - Be aware of the context in which the user is asking to provide more personalized responses.
+
+# Context
+Today is {datetime.date.today()}.
 '''
 instruction_msg = SystemMessage(content=agent_instructions)
 
