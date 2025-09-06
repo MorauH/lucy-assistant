@@ -16,6 +16,7 @@ from langchain.tools import StructuredTool
 
 from orion.agent_orion import AgentOrion
 from echo.agent_echo import AgentEcho
+from mcp.mcp_client import get_mcp_tools_sync
 
 from pydantic import BaseModel
 
@@ -66,6 +67,22 @@ instruction_msg = SystemMessage(content=agent_instructions)
 
 echo = AgentEcho()
 orion = AgentOrion()
+mcp_servers = [
+    # {
+    #     "name": "echo_server",
+    #     "transport": "stdio",
+    #     "command": ["python", "-m", "echo.server"],  # Command to launch server
+    #     "args": ["--stdio"],                         # Additional arguments
+    #     "cwd": "/path/to/server",                   # Working directory (optional)
+    #     "env": {"DEBUG": "1"}                       # Environment variables (optional)
+    # }
+    {
+        "name": "vault_server", 
+        "transport": "http",
+        "base_url": "http://localhost:8080",
+        "endpoint": "/mcp"  # JSON-RPC endpoint (default: /mcp)
+    }
+]
 
 class PromptInput(BaseModel):
     prompt: str
@@ -95,6 +112,13 @@ class Cortex:
         # compile tools list
         self.tools = get_tools(execute_string_callable=self.execute_string, create_tool_callable=self.create_tool)
         self.tools.extend(subagent_tools)
+
+        remote_tools = get_mcp_tools_sync(server_configs=mcp_servers)
+        self.tools.extend(remote_tools)
+        print("Remote tools:")
+        for tool in remote_tools:
+            print(tool.name)
+        print("------------------------------------------------")
 
         self.memory = MemorySaver()
         self.llm = ChatOpenAI(model='gpt-4o-mini')

@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "melotts",
     "unidic==1.1.0", # the dictionary for mecab (used in MeloTTS)
+    "soxr==0.5.0",
     
     "openai-whisper==20240930",
     "pyaudio==0.2.14",
@@ -36,6 +37,13 @@ dependencies = [
     # for marvin agent
     "schedule==1.2.2",
     "psutil==6.1.1",
+
+    # for MCP server
+    "httpx>=0.24.0",
+    "pydantic>=2.5.0, <3.0.0",
+    # "aiohttp-cors==0.7.0",
+    # "aiohttp>=3.8.0",
+    # "mcp>=1.0.0",
 ]
 
 [tool.uv.sources]
