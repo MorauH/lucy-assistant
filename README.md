@@ -2,6 +2,10 @@
 \- a AI assistant
 
 
+**Archived.**
+**Successor: https://github.com/MorauH/agentil-agent**
+
+
 ## Features
 
 - [x] Chat
